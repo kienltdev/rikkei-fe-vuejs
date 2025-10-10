@@ -58,6 +58,19 @@ const router = createRouter({
       props: true, // Truyền :id vào làm prop
       meta: { layout: 'DefaultLayout', requiresAuth: true }
     },
+
+    {
+      path: '/inbound-statistics',
+      name: 'inbound-statistics',
+      component: () => import('../views/inbound/InboundStatisticsView.vue'),
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
+    {
+      path: '/inventory',
+      name: 'inventory',
+      component: () => import('../views/inventory/InventoryView.vue'),
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
     {
       path: '/outbounds',
       name: 'outbound-list',
@@ -84,6 +97,12 @@ const router = createRouter({
     props: true,
     meta: { layout: 'DefaultLayout', requiresAuth: true }
   },
+  {
+      path: '/monthly-report',
+      name: 'monthly-report',
+      component: () => import('../views/report/MonthlyReportView.vue'),
+      meta: { layout: 'DefaultLayout', requiresAuth: true } 
+    },
    
   ]
 });

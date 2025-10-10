@@ -10,8 +10,7 @@ import BasePagination from '@/components/base/BasePagination.vue';
 // --- Khởi tạo ---
 const router = useRouter();
 const dictionaryStore = useDictionaryStore();
-// Lấy shippingMethods từ store
-const { shippingMethods } = storeToRefs(dictionaryStore);
+const { shippingMethods, productTypes } = storeToRefs(dictionaryStore);
 
 // --- State ---
 const outbounds = ref([]);
@@ -25,10 +24,11 @@ const pagination = reactive({
   totalItems: 0,
 });
 
-// Cấu hình các cột cho bảng
+// --- THAY ĐỔI: Cập nhật lại cấu hình cột, bỏ cột ID Nhập ---
 const tableColumns = [
   { key: 'id', label: 'ID Xuất' },
-  { key: 'inbId', label: 'ID Nhập' },
+  { key: 'invoice', label: 'Hóa đơn Nhập' },
+  { key: 'productType', label: 'Loại sản phẩm' },
   { key: 'quantity', label: 'Số lượng' },
   { key: 'shippingMethod', label: 'Phương thức' },
   { key: 'shippingDate', label: 'Ngày xuất' },
@@ -43,6 +43,15 @@ const shippingMethodMap = computed(() => {
     return map;
   }, {});
 });
+
+// Tạo bản đồ tra cứu cho loại sản phẩm
+const productTypeMap = computed(() => {
+  return productTypes.value.reduce((map, item) => {
+    map[item.code] = item.name;
+    return map;
+  }, {});
+});
+
 
 // --- Logic ---
 const fetchOutbounds = async () => {
@@ -79,11 +88,10 @@ const handleDelete = async (outboundId) => {
 
 // --- Hooks & Watchers ---
 onMounted(() => {
-  dictionaryStore.fetchDictionaries(); // Tải tất cả dữ liệu dùng chung
+  dictionaryStore.fetchDictionaries();
   fetchOutbounds();
 });
 
-// Tự động gọi lại API khi trang thay đổi
 watch(() => pagination.currentPage, fetchOutbounds);
 
 </script>
@@ -100,15 +108,23 @@ watch(() => pagination.currentPage, fetchOutbounds);
     <div v-if="error" class="error-message">{{ error }}</div>
 
     <BaseTable :columns="tableColumns" :items="outbounds" :is-loading="isLoading">
-      <!-- Tùy chỉnh hiển thị cho cột 'shippingMethod' -->
+      <template #cell(productType)="{ item }">
+        <span>{{ productTypeMap[item.productType] || item.productType }}</span>
+      </template>
+
       <template #cell(shippingMethod)="{ item }">
         <span>{{ shippingMethodMap[item.shippingMethod] || item.shippingMethod }}</span>
+      </template>
+
+      <template #cell(createdAt)="{ item }">
+        <span>{{ new Date(item.createdAt).toLocaleString() }}</span>
       </template>
 
       <!-- Tùy chỉnh hiển thị cho cột 'actions' -->
       <template #cell(actions)="{ item }">
         <div class="action-buttons">
-          <button @click="router.push(`/outbounds/${item.id}`)">Xem</button>
+          <!-- THAY ĐỔI HÀNH VI NÚT "XEM" Ở ĐÂY -->
+          <button @click="router.push(`/inbounds/${item.inbId}`)">Xem</button>
           <button :disabled="!item.editable" @click="router.push(`/outbounds/edit/${item.id}`)">Sửa</button>
           <button :disabled="!item.editable" @click="handleDelete(item.id)">Xóa</button>
         </div>

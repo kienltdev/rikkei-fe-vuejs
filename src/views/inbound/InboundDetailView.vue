@@ -35,6 +35,7 @@ const outboundTableColumns = [
   { key: 'quantity', label: 'Số lượng' },
   { key: 'shippingMethod', label: 'Phương thức' },
   { key: 'shippingDate', label: 'Ngày xuất' },
+  { key: 'createdAt', label: 'Ngày tạo' }, // THÊM MỚI: Khai báo cột Ngày tạo
   { key: 'updatedAt', label: 'Cập nhật' },
   { key: 'actions', label: 'Hành động' },
 ];
@@ -59,7 +60,8 @@ const handleDeleteOutbound = async (outboundId) => {
             await outboundApi.deleteOutbound(outboundId);
             alert('Xóa phiếu xuất thành công!');
             fetchInboundDetail(); // Tải lại toàn bộ chi tiết để cập nhật danh sách
-        } catch (err) {
+        } catch (err)
+{
             alert(err.response?.data?.message || 'Xóa thất bại.');
         }
     }
@@ -85,7 +87,6 @@ onMounted(fetchInboundDetail);
         <div class="info-grid">
           <p><strong>ID:</strong> {{ inboundDetail.id }}</p>
           <p><strong>Hóa đơn:</strong> {{ inboundDetail.invoice }}</p>
-          <!-- SỬA LẠI HIỂN THỊ Ở ĐÂY -->
           <p><strong>Loại sản phẩm:</strong> {{ productTypeMap[inboundDetail.productType] || inboundDetail.productType }}</p>
           <p><strong>Nhà cung cấp:</strong> {{ supplierCodeMap[inboundDetail.supplierCd] || inboundDetail.supplierCd }}</p>
           <p><strong>Ngày nhận:</strong> {{ inboundDetail.receiveDate }}</p>
@@ -103,13 +104,19 @@ onMounted(fetchInboundDetail);
           :columns="outboundTableColumns" 
           :items="inboundDetail.outbounds"
         >
-          <!-- NÂNG CẤP BẢNG Ở ĐÂY -->
           <template #cell(shippingMethod)="{ item }">
             <span>{{ shippingMethodMap[item.shippingMethod] || item.shippingMethod }}</span>
           </template>
+          
+          <!-- THÊM MỚI: Slot để format cột Ngày tạo -->
+          <template #cell(createdAt)="{ item }">
+            <span>{{ new Date(item.createdAt).toLocaleString() }}</span>
+          </template>
+
           <template #cell(updatedAt)="{ item }">
             <span>{{ new Date(item.updatedAt).toLocaleString() }}</span>
           </template>
+
           <template #cell(actions)="{ item }">
             <div class="action-buttons">
               <button @click="router.push(`/outbounds/edit/${item.id}`)">Sửa</button>

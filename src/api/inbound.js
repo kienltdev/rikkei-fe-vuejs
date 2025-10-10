@@ -28,5 +28,9 @@ export default {
         'Content-Type': 'multipart/form-data'
       }
     });
+  },
+  
+  getStatistics(params) {
+    return apiClient.get('/inbounds/statistics', { params });
   }
 };

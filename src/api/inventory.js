@@ -4,10 +4,19 @@ import apiClient from './apiClient';
 export default {
   /**
    * Lấy dữ liệu tóm tắt tồn kho
-   * @returns {Promise<Object>} Promise chứa dữ liệu summary
+   * @param {object} params - Các tham số lọc (productType, supplierCd, invoice)
+   * @returns {Promise<Object>}
    */
-  getSummary() {
-    // Interceptor sẽ tự động thêm header Authorization
-    return apiClient.get('/inventory/summary');
+  getSummary(params) {
+    return apiClient.get('/inventory/summary', { params });
+  },
+
+  /**
+   * Lấy danh sách tồn kho chi tiết
+   * @param {object} params - Các tham số lọc và phân trang
+   * @returns {Promise<Object>}
+   */
+  getList(params) {
+    return apiClient.get('/inventory/list', { params });
   }
 };

@@ -19,7 +19,10 @@ const handleLogout = () => {
         <span>Chào, {{ authStore.currentUser?.fullName || authStore.currentUser?.username }}!</span>
         <router-link to="/dashboard">Tổng quan</router-link>
         <router-link to="/inbounds">Quản lý Nhập kho</router-link>
+        <router-link to="/inbound-statistics">Thống kê Nhập kho</router-link>
+         <router-link to="/inventory">Quản lý Tồn kho</router-link>
         <router-link to="/outbounds">Quản lý Xuất kho</router-link> 
+        <router-link v-if="authStore.currentUser?.role === 1" to="/monthly-report">Báo cáo tháng</router-link>
         <router-link to="/profile">Hồ sơ</router-link>
         <button @click="handleLogout">Đăng xuất</button>
       </nav>
