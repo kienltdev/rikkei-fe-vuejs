@@ -5,7 +5,16 @@ export default {
   getInbounds(params) {
     return apiClient.get('/inbounds', { params });
   },
+  getInboundDetail(id) {
+    return apiClient.get(`/inbounds/${id}`);
+  },
+  createInbound(inboundData) {
+    return apiClient.post('/inbounds', inboundData);
+  },
 
+  updateInbound(id, inboundData) {
+    return apiClient.put(`/inbounds/${id}`, inboundData);
+  },
   deleteInbound(id) {
     return apiClient.delete(`/inbounds/${id}`);
   },

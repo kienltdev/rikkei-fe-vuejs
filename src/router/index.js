@@ -37,7 +37,54 @@ const router = createRouter({
       name: 'inbound-list',
       component: () => import('../views/inbound/InboundListView.vue'),
       meta: { layout: 'DefaultLayout', requiresAuth: true }
-    }
+    },
+    {
+      path: '/inbounds/:id', // :id là một tham số động
+      name: 'inbound-detail',
+      component: () => import('../views/inbound/InboundDetailView.vue'),
+      props: true, // Tự động truyền :id vào làm prop cho component
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
+    {
+      path: '/inbounds/create',
+      name: 'inbound-create',
+      component: () => import('../views/inbound/InboundCreateView.vue'),
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
+    {
+      path: '/inbounds/edit/:id',
+      name: 'inbound-edit',
+      component: () => import('../views/inbound/InboundEditView.vue'),
+      props: true, // Truyền :id vào làm prop
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
+    {
+      path: '/outbounds',
+      name: 'outbound-list',
+      component: () => import('../views/outbound/OutboundListView.vue'),
+      meta: { layout: 'DefaultLayout', requiresAuth: true }
+    },
+    { 
+    path: '/outbounds/create',
+    name: 'outbound-create',
+    component: () => import('../views/outbound/OutboundCreateView.vue'),
+    meta: { layout: 'DefaultLayout', requiresAuth: true }
+   },
+   { 
+    path: '/outbounds/:id',
+    name: 'outbound-detail',
+    component: () => import('../views/outbound/OutboundDetailView.vue'),
+    props: true,
+    meta: { layout: 'DefaultLayout', requiresAuth: true }
+  },
+  { 
+    path: '/outbounds/edit/:id',
+    name: 'outbound-edit',
+    component: () => import('../views/outbound/OutboundEditView.vue'),
+    props: true,
+    meta: { layout: 'DefaultLayout', requiresAuth: true }
+  },
+   
   ]
 });
 

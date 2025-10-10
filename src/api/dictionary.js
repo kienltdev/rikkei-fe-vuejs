@@ -6,5 +6,8 @@ export default {
   },
   getSupplierCodes() {
     return apiClient.get('/supplier-codes');
+  },
+  getShippingMethods() {
+    return apiClient.get('/shipping-methods');
   }
 };

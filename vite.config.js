@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools({
-      launchEditor: 'C:\\Users\\KienLT2\\AppData\\Local\\Programs\\IntelliJ IDEA 2025.2\\bin\\idea64.exe',
+      launchEditor: '',
     }),
   ],
   resolve: {

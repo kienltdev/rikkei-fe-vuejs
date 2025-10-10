@@ -1,11 +1,12 @@
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDictionaryStore } from '@/stores/dictionary';
 import { storeToRefs } from 'pinia';
 import inboundApi from '@/api/inbound.js';
 import BaseTable from '@/components/base/BaseTable.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
+import InboundImportModal from '@/components/specific/InboundImportModal.vue';
 
 // --- Khởi tạo ---
 const router = useRouter();
@@ -16,6 +17,7 @@ const { productTypes, supplierCodes } = storeToRefs(dictionaryStore);
 const inbounds = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
+const isImportModalOpen = ref(false);
 
 const filters = reactive({
   productType: '',
@@ -24,12 +26,11 @@ const filters = reactive({
 
 const pagination = reactive({
   currentPage: 1,
-  pageSize: 10, // Hoặc lấy từ config
+  pageSize: 10,
   totalPages: 1,
   totalItems: 0,
 });
 
-// Cấu hình các cột cho BaseTable
 const tableColumns = [
   { key: 'id', label: 'ID' },
   { key: 'invoice', label: 'Hóa đơn' },
@@ -40,6 +41,21 @@ const tableColumns = [
   { key: 'status', label: 'Trạng thái' },
   { key: 'actions', label: 'Hành động' },
 ];
+
+// --- LOGIC MỚI: TẠO BẢN ĐỒ TRA CỨU ---
+const productTypeMap = computed(() => {
+  return productTypes.value.reduce((map, item) => {
+    map[item.code] = item.name;
+    return map;
+  }, {});
+});
+
+const supplierCodeMap = computed(() => {
+  return supplierCodes.value.reduce((map, item) => {
+    map[item.code] = item.name;
+    return map;
+  }, {});
+});
 
 // --- Logic ---
 const fetchInbounds = async () => {
@@ -69,11 +85,15 @@ const handleDelete = async (inboundId) => {
     try {
       await inboundApi.deleteInbound(inboundId);
       alert('Xóa thành công!');
-      fetchInbounds(); // Tải lại danh sách sau khi xóa
+      fetchInbounds();
     } catch (err) {
       alert(err.response?.data?.message || 'Xóa thất bại.');
     }
   }
+};
+
+const handleImportSuccess = () => {
+  fetchInbounds();
 };
 
 // --- Hooks & Watchers ---
@@ -82,15 +102,15 @@ onMounted(() => {
   fetchInbounds();
 });
 
-// Tự động gọi lại API khi filter hoặc trang thay đổi
-watch([filters, () => pagination.currentPage], () => {
-  // Nếu filter thay đổi, quay về trang 1
-  if (filters.productType !== filters.productType || filters.supplierCd !== filters.supplierCd) {
-    pagination.currentPage = 1;
-  }
+watch([() => filters.productType, () => filters.supplierCd, () => pagination.currentPage], () => {
   fetchInbounds();
 }, { deep: true });
 
+watch([() => filters.productType, () => filters.supplierCd], () => {
+    if (pagination.currentPage !== 1) {
+        pagination.currentPage = 1;
+    }
+});
 </script>
 
 <template>
@@ -99,7 +119,7 @@ watch([filters, () => pagination.currentPage], () => {
       <h1>Quản lý Nhập kho</h1>
       <div class="actions">
         <button class="btn-primary" @click="router.push('/inbounds/create')">Tạo mới</button>
-        <button class="btn-secondary">Import</button>
+        <button class="btn-secondary" @click="isImportModalOpen = true">Import</button>
       </div>
     </header>
 
@@ -117,12 +137,19 @@ watch([filters, () => pagination.currentPage], () => {
     <div v-if="error" class="error-message">{{ error }}</div>
 
     <BaseTable :columns="tableColumns" :items="inbounds" :is-loading="isLoading">
-      <!-- Tùy chỉnh hiển thị cho cột 'status' -->
+      <!-- SỬA LẠI CÁCH HIỂN THỊ CÁC CỘT NÀY -->
+      <template #cell(productType)="{ item }">
+        <span>{{ productTypeMap[item.productType] || item.productType }}</span>
+      </template>
+
+      <template #cell(supplierCd)="{ item }">
+        <span>{{ supplierCodeMap[item.supplierCd] || item.supplierCd }}</span>
+      </template>
+
       <template #cell(status)="{ item }">
         <span>{{ item.status === 0 ? 'Chưa xuất' : (item.status === 1 ? 'Xuất một phần' : 'Đã xuất hết') }}</span>
       </template>
 
-      <!-- Tùy chỉnh hiển thị cho cột 'actions' -->
       <template #cell(actions)="{ item }">
         <div class="action-buttons">
           <button @click="router.push(`/inbounds/${item.id}`)">Xem</button>
@@ -132,9 +159,14 @@ watch([filters, () => pagination.currentPage], () => {
       </template>
     </BaseTable>
 
-    <BasePagination
-      v-model:currentPage="pagination.currentPage"
+    <BasePagination 
+      v-model:currentPage="pagination.currentPage" 
       :total-pages="pagination.totalPages"
+    />
+
+    <InboundImportModal 
+      v-model="isImportModalOpen" 
+      @import-success="handleImportSuccess" 
     />
   </div>
 </template>
